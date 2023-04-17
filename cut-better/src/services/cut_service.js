@@ -1,4 +1,5 @@
 export default class CutService {
+  //TODO: optimize, currently working with smaller data e.g. materialSize = 6000, {3500:2, 500: 5}
   getPieces(materialSize, pipes, cutSize = 5) {
     let bestComination;
     pipes = Object.entries(pipes).flatMap(([key, value]) =>
