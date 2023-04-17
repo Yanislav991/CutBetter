@@ -28,17 +28,23 @@
         <button type="button" @click="addItem()">Add new size</button>
         <input type="submit" text="Submit" />
     </form>
+    <table-result v-bind:result="result"></table-result>
 </template>
 <script>
 import CutService from '@/services/cut_service';
+import TableResult from './TableResultComponent.vue';
 
 export default {
     name: "HomeComponent",
     data() {
         return {
             materialPipeSize: 0,
-            sizes: []
+            sizes: [],
+            result: []
         }
+    },
+    components: {
+        TableResult
     },
     methods: {
         addItem: function () {
@@ -57,10 +63,9 @@ export default {
                 var count = Number(sizes.shift())
                 sizesObj[size] = count
             }
-            this.materialPipeSize = 100;
-            sizesObj = [20, 30, 40, 50, 45];
-            var result = service.getPieces(this.materialPipeSize, sizesObj)
-            console.log(result)
+
+            this.result = service.getPieces(this.materialPipeSize, sizesObj);
+            //console.log(this.result);
         }
 
     }

@@ -1,7 +1,9 @@
 export default class CutService {
   getPieces(materialSize, pipes, cutSize = 5) {
     let bestComination;
-
+    pipes = Object.entries(pipes).flatMap(([key, value]) =>
+      Array(value).fill(Number(key))
+    );
     let neededPipes = Math.ceil(
       (pipes.reduce((a, b) => a + b, 0) + (pipes.length - 1) * cutSize) /
         materialSize
@@ -13,7 +15,7 @@ export default class CutService {
       materialSize,
       cutSize
     );
-    console.log(allCombinations);
+
     for (let i = 0; i < allCombinations.length; i++) {
       let currentCombination = allCombinations[i];
       let isBestCombination = this.isBestCombination(
@@ -25,19 +27,40 @@ export default class CutService {
         bestComination = currentCombination;
       }
     }
-    return bestComination;
+
+    return this.fixCombination(bestComination, cutSize, materialSize);
+  }
+
+  fixCombination(combination, cutSize, capacity) {
+    let processedCombination = [];
+    for (let i = 0; i < combination.length; i++) {
+      let pipe = combination[i];
+      let sum = pipe.reduce((a, b) => a + b, 0);
+
+      if (sum == capacity) continue;
+      pipe = pipe.map((el) => {
+        if (el === cutSize) {
+          return { type: "cut", value: cutSize };
+        }
+        return { type: "piece", value: el };
+      });
+
+      pipe.push({ type: "cut", value: cutSize });
+      pipe.push({ type: "residuе", value: capacity - sum - cutSize });
+      processedCombination.push(pipe);
+    }
+    return processedCombination;
   }
 
   isBestCombination(bestComination, possibleBestCombination, capacity) {
     if (bestComination == undefined) {
       return true;
     }
-    let currBestEmptyArraysCount = this.countEmptyArrays(bestComination);
-    let possibleBestEmptyArraysCount = this.countEmptyArrays(
-      possibleBestCombination
-    );
+    let currBestArraysCount = this.countArrays(bestComination);
+    let possibleBestArraysCount = this.countArrays(possibleBestCombination);
 
-    if (possibleBestEmptyArraysCount > currBestEmptyArraysCount) {
+    if (currBestArraysCount > possibleBestArraysCount) {
+      console.log("Here");
       return true;
     }
     //////
@@ -50,18 +73,15 @@ export default class CutService {
       capacity
     );
 
-    if (
-      possibleBestSumCapacityArraysCount > currBestSumCapacityArraysCount &&
-      possibleBestEmptyArraysCount > currBestEmptyArraysCount
-    ) {
+    if (possibleBestSumCapacityArraysCount > currBestSumCapacityArraysCount) {
       return true;
     }
 
     return false;
   }
 
-  countEmptyArrays(matrix) {
-    return matrix.filter((arr) => arr.length === 0).length;
+  countArrays(matrix) {
+    return matrix.length;
   }
 
   countArraysSumToCapacity(matrix, capacity) {
