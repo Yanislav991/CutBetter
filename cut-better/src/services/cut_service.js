@@ -10,9 +10,10 @@ export default class CutService {
     let allCombinations = this.getCombinations(
       neededPipes,
       pipes,
-      materialSize
+      materialSize,
+      cutSize
     );
-
+    console.log(allCombinations);
     for (let i = 0; i < allCombinations.length; i++) {
       let currentCombination = allCombinations[i];
       let isBestCombination = this.isBestCombination(
@@ -49,7 +50,10 @@ export default class CutService {
       capacity
     );
 
-    if (possibleBestSumCapacityArraysCount > currBestSumCapacityArraysCount) {
+    if (
+      possibleBestSumCapacityArraysCount > currBestSumCapacityArraysCount &&
+      possibleBestEmptyArraysCount > currBestEmptyArraysCount
+    ) {
       return true;
     }
 
@@ -66,7 +70,7 @@ export default class CutService {
     ).length;
   }
 
-  getCombinations(neededPipes, numArrays, materialSize) {
+  getCombinations(neededPipes, numArrays, materialSize, cutSize) {
     let result = [];
     let permutations = this.permuteArray(numArrays);
 
@@ -75,21 +79,29 @@ export default class CutService {
       var permutationSplit = this.splitArray(
         neededPipes,
         permutation,
-        materialSize
+        materialSize,
+        cutSize
       );
       result.push(permutationSplit);
     }
     return result;
   }
 
-  splitArray(arrayCount, array, capacity) {
+  splitArray(arrayCount, array, capacity, cutSize) {
     const result = [];
     let currentSum = 0;
     let currentArray = [];
 
     for (let i = 0; i < array.length; i++) {
       const num = array[i];
-      if (currentSum + num <= capacity && currentArray.length < arrayCount) {
+      if (
+        currentSum + num + (currentArray.length > 0 ? cutSize : 0) <=
+        capacity
+      ) {
+        if (currentArray.length > 0) {
+          currentArray.push(cutSize);
+          currentSum += cutSize;
+        }
         currentArray.push(num);
         currentSum += num;
       } else {
