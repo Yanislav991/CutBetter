@@ -21,6 +21,7 @@
             <ul id="sizes">
                 <li v-for="(item, index) in sizes" :key="index">
                     <input type="number" :name="'size-' + index" />
+                    <input type="number" :name="'size-count' + index" />
                 </li>
             </ul>
         </section>
@@ -29,6 +30,7 @@
     </form>
 </template>
 <script>
+import CutService from '@/services/cut_service';
 
 export default {
     name: "HomeComponent",
@@ -44,15 +46,26 @@ export default {
         },
         onSubmit: function (e) {
             e.preventDefault();
-            console.log(e)
+            var service = new CutService();
+
             var formData = new FormData(e.target);
-            for (const value of formData.values()) {
-                console.log(value)
-                // console.log(`${pair[0]}, ${pair[1]}`);
+            var sizes = Array.from(formData.values())
+            var sizesObj = {}
+
+            while (sizes.length != 0) {
+                var size = Number(sizes.shift())
+                var count = Number(sizes.shift())
+                sizesObj[size] = count
             }
+            this.materialPipeSize = 100;
+            sizesObj = [20, 30, 40, 50, 45];
+            var result = service.getPieces(this.materialPipeSize, sizesObj)
+            console.log(result)
         }
+
     }
 }
+
 </script>
 <style lang="">
     
